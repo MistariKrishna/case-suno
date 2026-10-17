@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Enquiry {
+  id                    String    @id @default(cuid())
+  reference             String    @unique
+  accessToken           String    @unique
+  category              String
+  description           String
+  fullName              String
+  phone                 String
+  email                 String?
+  city                  String?
+  language              String    @default("en")
+  status                String    @default("NEW")
+  priority              String    @default("NORMAL")
+  handling              String    @default("UNDECIDED")
+  feeAmount             Int?
+  feeNote               String?
+  lawyerId              String?
+  lawyer                Lawyer?   @relation(fields: [lawyerId], references: [id], onDelete: SetNull)
+  shareLawyerWithClient Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  messages              Message[]
+  notes                 Note[]
+  events                Event[]
+  payments              Payment[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  enquiryId   String
+  enquiry     Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  sender      String
+  body        String
+  readByAdmin Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([enquiryId])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  enquiryId String
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([enquiryId])
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  enquiryId String
+  enquiry   Enquiry  @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  type      String
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([enquiryId])
+}
+
+model Payment {
+  id                String    @id @default(cuid())
+  enquiryId         String
+  enquiry           Enquiry   @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  amount            Int
+  currency          String    @default("INR")
+  status            String    @default("CREATED")
+  razorpayOrderId   String    @unique
+  razorpayPaymentId String?
+  createdAt         DateTime  @default(now())
+  paidAt            DateTime?
+
+  @@index([enquiryId])
+}
+
+model Lawyer {
+  id             String    @id @default(cuid())
+  name           String
+  phone          String
+  email          String?
+  specialization String
+  city           String?
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  enquiries      Enquiry[]
+}
