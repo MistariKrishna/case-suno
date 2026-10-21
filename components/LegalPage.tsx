@@ -97,9 +97,9 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
     "border border-white/70 bg-white/55 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_4px_14px_-8px_rgba(31,30,27,0.3)]";
 
   return (
-    <div className="relative isolate flex min-h-screen flex-col overflow-x-hidden bg-gradient-to-br from-[#F6F1E7] via-[#FAF9F6] to-[#F3EFE6] text-[#222222] print:bg-white">
+    <div className="relative isolate flex min-h-screen flex-col bg-gradient-to-br from-[#F6F1E7] via-[#FAF9F6] to-[#F3EFE6] text-[#222222] print:bg-white">
       {/* Ambient blobs */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 print:hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden print:hidden">
         <div className="cs-blob absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-[#C9A45C]/12 blur-3xl" />
         <div
           className="cs-blob absolute top-1/3 -right-32 h-[380px] w-[380px] rounded-full bg-[#1F5C50]/10 blur-3xl"

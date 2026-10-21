@@ -1,25 +1,19 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "../context/LanguageContext";
 import { LEGAL_DOCS, LEGAL_ORDER } from "../lib/legal";
+import { NAV_ITEMS, navLabel, scrollToSection, type NavItem } from "../lib/nav";
 
-interface FooterProps {
-  onOpenAbout: () => void;
-  onOpenResources: () => void;
-  onOpenFaq: () => void;
-  onOpenContact: () => void;
-}
+/* Footer shows every nav item except "How It Works" */
+const FOOTER_ITEMS = NAV_ITEMS.filter((i) => i.key !== "how");
 
-export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, onOpenFaq, onOpenContact }) => {
+export const Footer: React.FC = () => {
   const { t, language } = useLanguage();
-
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-    else scrollTop();
-  };
+  const pathname = usePathname() ?? "/";
+  const isHome = pathname === "/";
 
   const marker =
     language === "gu"
@@ -28,14 +22,13 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, on
         ? "ऑनलाइन एवं अपॉइंटमेंट आधारित सहायता"
         : "Online & Appointment-Based Assistance";
 
-  const links = [
-    { key: "home", label: t.nav.home, action: scrollTop },
-    { key: "services", label: t.nav.services, action: () => scrollTo("services") },
-    { key: "about", label: t.nav.about, action: onOpenAbout },
-    { key: "resources", label: t.nav.resources, action: onOpenResources },
-    { key: "faq", label: t.nav.faq, action: onOpenFaq },
-    { key: "contact", label: t.nav.contact, action: onOpenContact },
-  ];
+  /** On the home page, section links scroll instead of navigating. */
+  const handleClick = (item: NavItem) => (e: React.MouseEvent) => {
+    if (isHome && item.section) {
+      e.preventDefault();
+      scrollToSection(item.section);
+    }
+  };
 
   const legalLabel = (type: (typeof LEGAL_ORDER)[number]) =>
     type === "privacy" ? t.footer.privacy : type === "terms" ? t.footer.terms : t.footer.disclaimer;
@@ -44,29 +37,29 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, on
     "flex h-8 w-8 items-center justify-center rounded-full bg-[#EFECE5] text-[#4A463E] transition-all duration-200 hover:bg-[#1E1D1A] hover:text-white hover:-translate-y-1 hover:shadow-md active:scale-90";
 
   return (
-    <footer className="w-full bg-[#FAF9F6] text-[#3E3A33] pt-12 sm:pt-14 pb-12">
+    <footer className="w-full bg-[#FAF9F6] text-[#3E3A33] pt-12 sm:pt-14 pb-12 border-t border-[#EFEBE3]">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-12">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-10 border-b border-[#E8E4DB]">
-          <button
-            type="button"
-            onClick={scrollTop}
-            aria-label="Back to top"
-            className="self-start cursor-pointer transition-transform duration-200 hover:scale-[1.03] active:scale-95"
+          <Link
+            href="/"
+            onClick={handleClick(NAV_ITEMS[0])}
+            aria-label="CASE SUNO Home"
+            className="self-start transition-transform duration-200 hover:scale-[1.03] active:scale-95"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="CASE SUNO Logo" className="h-20 w-auto" />
-          </button>
+          </Link>
 
           <nav className="flex flex-wrap items-center gap-5 sm:gap-7 text-[13px] font-medium text-[#524D45]" aria-label="Footer Navigation">
-            {links.map((l) => (
-              <button
-                key={l.key}
-                type="button"
-                onClick={l.action}
-                className="nav-link-underline hover:text-[#1A1917] transition-colors py-1 cursor-pointer"
+            {FOOTER_ITEMS.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                onClick={handleClick(item)}
+                className="nav-link-underline hover:text-[#1A1917] transition-colors py-1"
               >
-                {l.label}
-              </button>
+                {navLabel(t, item.key)}
+              </Link>
             ))}
           </nav>
 
@@ -98,7 +91,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, on
                   href={LEGAL_DOCS[type].href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="nav-link-underline hover:text-[#1A1917] transition-colors cursor-pointer"
+                  className="nav-link-underline hover:text-[#1A1917] transition-colors"
                 >
                   {legalLabel(type)}
                 </a>

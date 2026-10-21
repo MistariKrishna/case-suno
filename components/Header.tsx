@@ -1,22 +1,16 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, Globe, ChevronDown, UserRound } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
+import { useSiteActions } from "../context/SiteActionsContext";
+import { NAV_ITEMS, navLabel, pageKeyFromPath, scrollToSection, type NavItem, type NavKey } from "../lib/nav";
 import { openWhatsApp } from "./contact";
 import { WhatsAppIcon } from "./WhatsApp";
 
 type Lang = "en" | "hi" | "gu";
-type NavKey = "home" | "how" | "services" | "about" | "resources" | "faq" | "contact";
-
-interface HeaderProps {
-  onOpenEnquiry: (serviceCategory?: string) => void;
-  onOpenAbout: () => void;
-  onOpenResources: () => void;
-  onOpenFaq: () => void;
-  onOpenContact: () => void;
-  onOpenHowItWorks?: () => void;
-}
 
 const LANGS: { code: Lang; label: string; short: string }[] = [
   { code: "en", label: "English", short: "EN" },
@@ -24,32 +18,32 @@ const LANGS: { code: Lang; label: string; short: string }[] = [
   { code: "gu", label: "ગુજરાતી", short: "ગુજ" },
 ];
 
-/* Sections tracked by scroll-spy → nav key */
+/* Home-page sections tracked by scroll-spy → nav key */
 const SPY: Record<string, NavKey> = {
   home: "home",
   "how-it-works": "how",
   services: "services",
 };
 
-export const Header: React.FC<HeaderProps> = ({
-  onOpenEnquiry,
-  onOpenAbout,
-  onOpenResources,
-  onOpenFaq,
-  onOpenContact,
-}) => {
+export const Header: React.FC = () => {
   const { language, setLanguage, toggleLanguage, t } = useLanguage();
+  const { openEnquiry } = useSiteActions();
+  const pathname = usePathname() ?? "/";
+  const isHome = pathname === "/";
   const isGu = language === "gu";
   const isHi = language === "hi";
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [active, setActive] = useState<NavKey>("home");
+  const [spyActive, setSpyActive] = useState<NavKey>("home");
   const [hovered, setHovered] = useState<NavKey | null>(null);
   const [indicator, setIndicator] = useState({ left: 0, width: 0, ready: false });
 
-  const itemRefs = useRef<Partial<Record<NavKey, HTMLButtonElement | null>>>({});
+  /* On home: scroll-spy decides. On other pages: the URL decides. */
+  const active: NavKey | null = isHome ? spyActive : pageKeyFromPath(pathname);
+
+  const itemRefs = useRef<Partial<Record<NavKey, HTMLAnchorElement | null>>>({});
   const accountRef = useRef<HTMLDivElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
 
@@ -72,12 +66,13 @@ export const Header: React.FC<HeaderProps> = ({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ---------------- scroll-spy ---------------- */
+  /* ---------------- scroll-spy (home page only) ---------------- */
   useEffect(() => {
+    if (!isHome) return;
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting && SPY[e.target.id]) setActive(SPY[e.target.id]);
+          if (e.isIntersecting && SPY[e.target.id]) setSpyActive(SPY[e.target.id]);
         });
       },
       { rootMargin: "-40% 0px -55% 0px" },
@@ -87,12 +82,12 @@ export const Header: React.FC<HeaderProps> = ({
       if (el) io.observe(el);
     });
     return () => io.disconnect();
-  }, []);
+  }, [isHome]);
 
   /* ---------------- sliding indicator ---------------- */
   const updateIndicator = useCallback(() => {
     const key = hovered ?? active;
-    const el = itemRefs.current[key];
+    const el = key ? itemRefs.current[key] : null;
     if (!el) return setIndicator((i) => ({ ...i, ready: false }));
     setIndicator({ left: el.offsetLeft, width: el.offsetWidth, ready: true });
   }, [hovered, active]);
@@ -138,33 +133,17 @@ export const Header: React.FC<HeaderProps> = ({
   }, [accountOpen, mobileOpen]);
 
   /* ---------------- actions ---------------- */
-  const scrollTop = () => {
+  /** On the home page, section links scroll instead of navigating. */
+  const handleNavClick = (item: NavItem) => (e: React.MouseEvent) => {
     setMobileOpen(false);
-    setActive("home");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (isHome && item.section) {
+      e.preventDefault();
+      setSpyActive(item.key);
+      scrollToSection(item.section);
+    }
   };
 
-  const scrollToSection = (id: string, key: NavKey) => {
-    setMobileOpen(false);
-    setActive(key);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const runAndClose = (fn: () => void) => () => {
-    setMobileOpen(false);
-    fn();
-  };
-
-  const navItems: { key: NavKey; label: string; action: () => void }[] = [
-    { key: "home", label: t.nav.home, action: scrollTop },
-    { key: "how", label: t.nav.howItWorks, action: () => scrollToSection("how-it-works", "how") },
-    { key: "services", label: t.nav.services, action: () => scrollToSection("services", "services") },
-    { key: "about", label: t.nav.about, action: runAndClose(onOpenAbout) },
-    { key: "resources", label: t.nav.resources, action: runAndClose(onOpenResources) },
-    { key: "faq", label: t.nav.faq, action: runAndClose(onOpenFaq) },
-    { key: "contact", label: t.nav.contact, action: runAndClose(onOpenContact) },
-  ];
-
+  const homeItem = NAV_ITEMS[0];
   const mobileLangLabel = LANGS.find((l) => l.code === language)?.short ?? "EN";
 
   const glassBtn =
@@ -181,25 +160,21 @@ export const Header: React.FC<HeaderProps> = ({
               : "h-[56px] lg:h-[64px] border-white/60 bg-white/45 backdrop-blur-xl backdrop-saturate-150 shadow-[0_10px_34px_-16px_rgba(31,30,27,0.22),inset_0_1px_0_rgba(255,255,255,0.85)]"
           }`}
         >
-          {/* soft top sheen */}
           <span
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-b from-white/50 via-white/10 to-transparent"
           />
 
           {/* Brand */}
-          <a
-            href="#home"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTop();
-            }}
+          <Link
+            href="/"
+            onClick={handleNavClick(homeItem)}
             className="relative shrink-0 rounded-md transition-transform duration-300 hover:scale-[1.03] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F5C50]/40"
             aria-label="CASE SUNO Home"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logo.png" alt="CASE SUNO" className="h-9 lg:h-10 w-auto" />
-          </a>
+          </Link>
 
           {/* ================= Desktop nav with sliding pill ================= */}
           <nav
@@ -214,29 +189,29 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
               style={{ left: indicator.left, width: indicator.width }}
             />
-            {navItems.map((item) => {
+            {NAV_ITEMS.map((item) => {
               const isActive = active === item.key;
               return (
-                <button
+                <Link
                   key={item.key}
+                  href={item.href}
                   ref={(el) => {
                     itemRefs.current[item.key] = el;
                   }}
-                  type="button"
-                  onClick={item.action}
+                  onClick={handleNavClick(item)}
                   onMouseEnter={() => setHovered(item.key)}
                   onFocus={() => setHovered(item.key)}
                   onBlur={() => setHovered(null)}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative z-10 whitespace-nowrap rounded-full px-3.5 2xl:px-4 py-2 text-[13.5px] font-medium transition-colors duration-200 cursor-pointer focus-visible:outline-none ${
+                  className={`relative z-10 whitespace-nowrap rounded-full px-3.5 2xl:px-4 py-2 text-[13.5px] font-medium transition-colors duration-200 focus-visible:outline-none ${
                     isActive ? "text-[#1F1E1B]" : "text-[#5A564F] hover:text-[#1F1E1B]"
                   }`}
                 >
-                  {item.label}
+                  {navLabel(t, item.key)}
                   {isActive && (
                     <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-[#1F5C50]" aria-hidden="true" />
                   )}
-                </button>
+                </Link>
               );
             })}
           </nav>
@@ -284,7 +259,7 @@ export const Header: React.FC<HeaderProps> = ({
                     type="button"
                     onClick={() => {
                       setAccountOpen(false);
-                      onOpenEnquiry();
+                      openEnquiry();
                     }}
                     className="group w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F1E1B] px-4 py-2.5 text-xs font-medium text-white transition-all hover:bg-[#33312B] active:scale-[0.98] cursor-pointer"
                   >
@@ -298,7 +273,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* CTA (very wide screens) */}
             <button
               type="button"
-              onClick={() => onOpenEnquiry()}
+              onClick={() => openEnquiry()}
               className="cs-shine group relative hidden 2xl:inline-flex items-center gap-2 overflow-hidden rounded-full bg-[#1F1E1B] pl-5 pr-4 py-2.5 text-[13px] font-medium text-white shadow-[0_8px_20px_-10px_rgba(31,30,27,0.6)] transition-all duration-300 hover:bg-[#1F5C50] hover:shadow-[0_10px_24px_-10px_rgba(31,92,80,0.7)] active:scale-95 cursor-pointer"
             >
               <span>{t.nav.getStarted}</span>
@@ -352,15 +327,16 @@ export const Header: React.FC<HeaderProps> = ({
         {mobileOpen && (
           <div className="cs-slide-down pointer-events-auto absolute inset-x-0 top-[calc(100%+8px)] xl:hidden max-h-[calc(100dvh-96px)] overflow-y-auto rounded-2xl border border-white/70 bg-white/80 p-4 sm:p-5 backdrop-blur-2xl backdrop-saturate-150 shadow-[0_24px_60px_-20px_rgba(31,30,27,0.45)]">
             <div className="flex flex-col">
-              {navItems.map((item, i) => {
+              {NAV_ITEMS.map((item, i) => {
                 const isActive = active === item.key;
                 return (
-                  <button
+                  <Link
                     key={item.key}
-                    type="button"
-                    onClick={item.action}
+                    href={item.href}
+                    onClick={handleNavClick(item)}
+                    aria-current={isActive ? "page" : undefined}
                     style={{ animationDelay: `${i * 35}ms` }}
-                    className={`cs-slide-down group flex items-center justify-between rounded-xl px-3 py-3 text-left text-[14.5px] font-medium transition-all cursor-pointer ${
+                    className={`cs-slide-down group flex items-center justify-between rounded-xl px-3 py-3 text-left text-[14.5px] font-medium transition-all ${
                       isActive ? "bg-white text-[#1F1E1B] shadow-xs" : "text-[#4A4742] hover:bg-white/70 hover:text-[#1F1E1B]"
                     }`}
                   >
@@ -368,10 +344,10 @@ export const Header: React.FC<HeaderProps> = ({
                       <span
                         className={`h-1.5 w-1.5 rounded-full transition-colors ${isActive ? "bg-[#1F5C50]" : "bg-[#D9D3C7] group-hover:bg-[#1F5C50]/60"}`}
                       />
-                      {item.label}
+                      {navLabel(t, item.key)}
                     </span>
                     <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100 text-[#1F5C50]" />
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -397,7 +373,7 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={() => {
                   setMobileOpen(false);
-                  onOpenEnquiry();
+                  openEnquiry();
                 }}
                 className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#1F1E1B] px-4 py-3 text-[13.5px] font-medium text-white transition-all hover:bg-[#33312B] active:scale-[0.98] cursor-pointer"
               >

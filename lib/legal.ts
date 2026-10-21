@@ -20,9 +20,9 @@ export interface LegalDoc {
 export const LEGAL_ORDER: LegalType[] = ["privacy", "terms", "disclaimer"];
 
 export const LEGAL_UPDATED: L3 = {
-  en: "Updated: January 2026",
-  hi: "अद्यतित: जनवरी २०२६",
-  gu: "અપડેટ: જાન્યુઆરી ૨૦૨૬",
+  en: "Updated: September 2026",
+  hi: "अद्यतित: सेप्टम्बर २०२६",
+  gu: "અપડેટ: સપ્ટેમ્બર ૨૦૨૬",
 };
 
 export const LEGAL_DOCS: Record<LegalType, LegalDoc> = {
