@@ -1,6 +1,6 @@
 import type { Translations } from "../context/LanguageContext";
 
-export type NavKey = "home" | "how" | "services" | "about" | "resources" | "faq" | "contact";
+export type NavKey = "home" | "how" | "services" | "about" | "resources" | "faq" | "contact" | "track";
 
 export interface NavItem {
   key: NavKey;
@@ -17,6 +17,7 @@ export const NAV_ITEMS: NavItem[] = [
   { key: "resources", href: "/resources" },
   { key: "faq", href: "/faq" },
   { key: "contact", href: "/contact" },
+  { key: "track", href: "/track" },
 ];
 
 export const navLabel = (t: Translations, key: NavKey): string =>
@@ -28,6 +29,7 @@ export const navLabel = (t: Translations, key: NavKey): string =>
     resources: t.nav.resources,
     faq: t.nav.faq,
     contact: t.nav.contact,
+    track: t.nav.trackRequest,
   })[key];
 
 /** Which page-type nav item matches the current URL (null on home / legal pages) */

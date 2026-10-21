@@ -9,6 +9,9 @@ import { WhatsAppIcon } from "./WhatsApp";
 
 type LegalType = "privacy" | "terms" | "disclaimer";
 
+/** Must match the API rule: description: z.string().trim().min(5) */
+const MIN_DESCRIPTION = 5;
+
 interface EnquiryModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,8 +33,9 @@ export const EnquiryModal: React.FC<EnquiryModalProps> = ({ isOpen, onClose, ini
   const [referenceId, setReferenceId] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
-const [submitting, setSubmitting] = useState(false);
-const [trackUrl, setTrackUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [trackUrl, setTrackUrl] = useState("");
+
   const categories = [
     { id: "Notice, Summons & Court / Case", slug: "notice-summons-court-case",
       label: L("Notice, Summons & Court / Case", "नोटिस, समन और कोर्ट / केस", "નોટિસ, સમન્સ અને કોર્ટ / કેસ"),
@@ -74,7 +78,7 @@ const [trackUrl, setTrackUrl] = useState("");
     setReferenceId("");
     setErrorMsg("");
     setTrackUrl("");
-setSubmitting(false);
+    setSubmitting(false);
   };
 
   // Pre-select a matching category each time the modal opens
@@ -138,62 +142,84 @@ setSubmitting(false);
   );
 
   const handleNextStep2 = () => {
-    if (!description.trim()) {
+    const text = description.trim();
+    if (!text) {
       setErrorMsg(L("Please write a brief summary of what you are dealing with.", "कृपया अपनी समस्या का संक्षिप्त विवरण लिखें।", "કૃપા કરીને તમારી સમસ્યાનો ટૂંકો સારાંશ લખો."));
+      return;
+    }
+    if (text.length < MIN_DESCRIPTION) {
+      setErrorMsg(L("Please describe your situation in a few more words.", "कृपया अपनी स्थिति कुछ और शब्दों में बताएं।", "કૃપા કરીને તમારી પરિસ્થિતિ થોડા વધુ શબ્દોમાં જણાવો."));
       return;
     }
     setErrorMsg("");
     setStep(3);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!termsAccepted) {
-    setErrorMsg(L("Please confirm that you agree to share your details with CASE SUNO.", "कृपया अपनी जानकारी साझा करने के लिए सहमति दें।", "કૃપા કરીને તમારી વિગતો શેર કરવા માટે સંમતિ આપો."));
-    return;
-  }
-  if (!formData.fullName.trim()) {
-    setErrorMsg(L("Please enter your full name.", "कृपया अपना पूरा नाम लिखें।", "કૃપા કરીને તમારું પૂરું નામ લખો."));
-    return;
-  }
-  const digits = formData.phone.replace(/\D/g, "");
-  if (digits.length < 10 || digits.length > 13) {
-    setErrorMsg(L("Please enter a valid mobile / WhatsApp number.", "कृपया मान्य व्हाट्सएप/मोबाइल नंबर दर्ज करें।", "કૃપા કરીને માન્ય વોટ્સએપ/મોબાઇલ નંબર લખો."));
-    return;
-  }
+  const genericError = L(
+    "We couldn't submit your enquiry right now. Please try again, or contact us on WhatsApp.",
+    "आपकी पूछताछ अभी सबमिट नहीं हो सकी। कृपया फिर से प्रयास करें या व्हाट्सएप पर संपर्क करें।",
+    "તમારી પૂછપરછ હાલમાં સબમિટ થઈ શકી નથી. કૃપા કરીને ફરી પ્રયાસ કરો અથવા વોટ્સએપ પર સંપર્ક કરો.",
+  );
 
-  setErrorMsg("");
-  setSubmitting(true);
-  try {
-    const res = await fetch("/api/enquiries", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, description, ...formData, language }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || "failed");
-    setReferenceId(data.reference);
-    setTrackUrl(data.trackUrl);
-    setStep(4);
-  } catch {
-    setErrorMsg(
-      L(
-        "We couldn't submit your enquiry right now. Please try again, or contact us on WhatsApp.",
-        "आपकी पूछताछ अभी सबमिट नहीं हो सकी। कृपया फिर से प्रयास करें या व्हाट्सएप पर संपर्क करें।",
-        "તમારી પૂછપરછ હાલમાં સબમિટ થઈ શકી નથી. કૃપા કરીને ફરી પ્રયાસ કરો અથવા વોટ્સએપ પર સંપર્ક કરો.",
-      ),
-    );
-  } finally {
-    setSubmitting(false);
-  }
-};
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!termsAccepted) {
+      setErrorMsg(L("Please confirm that you agree to share your details with CASE SUNO.", "कृपया अपनी जानकारी साझा करने के लिए सहमति दें।", "કૃપા કરીને તમારી વિગતો શેર કરવા માટે સંમતિ આપો."));
+      return;
+    }
+    if (formData.fullName.trim().length < 2) {
+      setErrorMsg(L("Please enter your full name.", "कृपया अपना पूरा नाम लिखें।", "કૃપા કરીને તમારું પૂરું નામ લખો."));
+      return;
+    }
+    const digits = formData.phone.replace(/\D/g, "");
+    if (digits.length < 10 || digits.length > 13) {
+      setErrorMsg(L("Please enter a valid mobile / WhatsApp number.", "कृपया मान्य व्हाट्सएप/मोबाइल नंबर दर्ज करें।", "કૃપા કરીને માન્ય વોટ્સએપ/મોબાઇલ નંબર લખો."));
+      return;
+    }
+    if (description.trim().length < MIN_DESCRIPTION) {
+      setErrorMsg(L("Please go back and describe your situation in a few more words.", "कृपया पीछे जाकर अपनी स्थिति कुछ और शब्दों में बताएं।", "કૃપા કરીને પાછા જઈને તમારી પરિસ્થિતિ થોડા વધુ શબ્દોમાં જણાવો."));
+      return;
+    }
+
+    setErrorMsg("");
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category, description, ...formData, language }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        console.error("Enquiry submit failed:", res.status, data);
+        // 4xx = the server rejected something specific (form details, rate limit) → show its reason
+        if (res.status >= 400 && res.status < 500 && typeof data.error === "string") {
+          setErrorMsg(data.error);
+          return;
+        }
+        throw new Error(data.error || "failed");
+      }
+
+      setReferenceId(data.reference);
+      setTrackUrl(data.trackUrl);
+      setStep(4);
+    } catch (err) {
+      console.error("Enquiry submit error:", err);
+      setErrorMsg(genericError);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const openWhatsAppConfirmation = () => {
-  const brief = description.length > 100 ? `${description.slice(0, 100)}...` : description;
-  openWhatsApp(
-    `Hello CASE SUNO, I submitted an enquiry (${referenceId}) regarding ${category}.\nName: ${formData.fullName}\nPhone: ${formData.phone}\nCity: ${formData.city || "-"}\nBrief: ${brief}${trackUrl ? `\nTrack: ${trackUrl}` : ""}`,
-  );
-};
+    const brief = description.length > 100 ? `${description.slice(0, 100)}...` : description;
+    openWhatsApp(
+      `Hello CASE SUNO, I submitted an enquiry (${referenceId}) regarding ${category}.\nName: ${formData.fullName}\nPhone: ${formData.phone}\nCity: ${formData.city || "-"}\nBrief: ${brief}${trackUrl ? `\nTrack: ${trackUrl}` : ""}`,
+    );
+  };
+
+  const descLength = description.trim().length;
 
   return (
     <ModalShell onClose={handleClose} maxHeightClass="max-h-[92vh]" ariaLabel="Enquiry">
@@ -302,7 +328,12 @@ setSubmitting(false);
                 )}
                 className={`${inputClass} p-3 resize-y`}
               />
-              <span className="block text-right text-[10px] text-[#9C9588] mt-1 tabular-nums">{description.length}/1500</span>
+              <div className="mt-1 flex items-center justify-between text-[10px] tabular-nums">
+                <span className={descLength > 0 && descLength < MIN_DESCRIPTION ? "text-red-700" : "text-[#9C9588]"}>
+                  {L(`Minimum ${MIN_DESCRIPTION} characters`, `न्यूनतम ${MIN_DESCRIPTION} अक्षर`, `ઓછામાં ઓછા ${MIN_DESCRIPTION} અક્ષરો`)}
+                </span>
+                <span className="text-[#9C9588]">{description.length}/1500</span>
+              </div>
             </div>
             <div className="pt-3 flex items-center justify-between border-t border-[#EAE6DD]">
               {backBtn(1)}
@@ -402,11 +433,11 @@ setSubmitting(false);
                 disabled={!termsAccepted || submitting}
                 className="group inline-flex items-center gap-2 px-6 py-2.5 bg-[#1F1E1B] hover:bg-[#33312B] text-white text-xs font-medium tracking-wide rounded-sm hover:shadow-md active:scale-[0.97] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:active:scale-100"
               >
-               <span>
-  {submitting
-    ? L("Submitting…", "सबमिट हो रहा है…", "સબમિટ થઈ રહ્યું છે…")
-    : L("Submit Confidential Enquiry", "गोपनीय पूछताछ सबमिट करें", "ગોપનીય પૂછપરછ સબમિટ કરો")}
-</span>
+                <span>
+                  {submitting
+                    ? L("Submitting…", "सबमिट हो रहा है…", "સબમિટ થઈ રહ્યું છે…")
+                    : L("Submit Confidential Enquiry", "गोपनीय पूछताछ सबमिट करें", "ગોપનીય પૂછપરછ સબમિટ કરો")}
+                </span>
                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
               </button>
             </div>
@@ -446,23 +477,23 @@ setSubmitting(false);
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3">
+              {trackUrl && (
+                <a
+                  href={trackUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#1F5C50] hover:bg-[#174A41] text-white text-xs font-medium rounded-sm active:scale-[0.97] transition-all"
+                >
+                  {L("Track your request", "अपना अनुरोध ट्रैक करें", "તમારી વિનંતી ટ્રેક કરો")}
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </a>
+              )}
               <button
                 type="button"
                 onClick={openWhatsAppConfirmation}
                 className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-medium rounded-sm hover:shadow-md active:scale-[0.97] transition-all cursor-pointer"
               >
-                {trackUrl && (
-  <a
-    href={trackUrl}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#1F5C50] hover:bg-[#174A41] text-white text-xs font-medium rounded-sm active:scale-[0.97] transition-all"
-  >
-    {L("Track your request", "अपना अनुरोध ट्रैक करें", "તમારી વિનંતી ટ્રેક કરો")}
-    <ArrowRight className="w-3.5 h-3.5" />
-  </a>
-)}
                 <WhatsAppIcon className="h-3.5 w-3.5 transition-transform group-hover:scale-110" />
                 <span>{L("Connect Instantly on WhatsApp", "व्हाट्सएप पर तुरंत जुड़ें", "વોટ્સએપ પર તરત જોડાઓ")}</span>
               </button>

@@ -20,7 +20,8 @@ export interface Translations {
     resources: string;
     faq: string;
     contact: string;
-    getStarted: string;
+        getStarted: string;
+    trackRequest: string;
   };
   hero: {
     kicker: string;
@@ -160,6 +161,7 @@ export const translations: Record<Language, Translations> = {
       faq: "FAQ",
       contact: "Contact",
       getStarted: "Get Started",
+            trackRequest: "Track Request",
     },
     hero: {
       kicker: "Personal • Business • Documentation • Case Assistance",
@@ -539,6 +541,7 @@ export const translations: Record<Language, Translations> = {
       faq: "પ્રશ્નોત્તરી",
       contact: "સંપર્ક",
       getStarted: "શરૂ કરો",
+            trackRequest: "વિનંતી ટ્રેક કરો",
     },
     hero: {
       kicker: "વ્યક્તિગત • વ્યવસાય • દસ્તાવેજીકરણ • કેસ સહાય",
@@ -877,6 +880,7 @@ export const translations: Record<Language, Translations> = {
       faq: "अक्सर पूछे जाने वाले प्रश्न",
       contact: "संपर्क",
       getStarted: "शुरुआत करें",
+            trackRequest: "अनुरोध ट्रैक करें",
     },
     hero: {
       kicker: "व्यक्तिगत • व्यवसाय • दस्तावेज़ीकरण • केस सहायता",
