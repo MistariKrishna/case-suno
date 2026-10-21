@@ -11,8 +11,8 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { key: "home", href: "/", section: "home" },
-  { key: "how", href: "/#how-it-works", section: "how-it-works" },
   { key: "services", href: "/#services", section: "services" },
+  { key: "how", href: "/#how-it-works", section: "how-it-works" },
   { key: "about", href: "/about" },
   { key: "resources", href: "/resources" },
   { key: "faq", href: "/faq" },
