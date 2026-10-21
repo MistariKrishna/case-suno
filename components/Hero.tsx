@@ -25,6 +25,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { useLanguage, type Language } from "../context/LanguageContext";
 import { Reveal } from "./Reveal";
 import { Tilt } from "./Tilt";
@@ -40,11 +41,15 @@ type L3 = Record<Language, string>;
 const HERO_PHOTO = "/images/hero-person.webp";
 const HERO_FALLBACK = "/images/hero2.webp";
 
+/* WhatsApp: country code + number, no "+" or spaces */
+const WHATSAPP_NUMBER = "918000784778";
+
 /* CASE SUNO theme */
 const INK = "#1F1E1B";
 const GREEN = "#1F5C50";
 const TEXT = "#3F3F3B";
 const MUTED = "#6B655B";
+const WA_GREEN = "#1DA851";
 
 const TONES = [
   { bg: "#E6EFEA", fg: "#1F5C50" },
@@ -78,7 +83,11 @@ const H = {
     { icon: Users, label: { en: "Professional Coordination", gu: "વ્યાવસાયિક સંકલન", hi: "पेशेवर समन्वय" } },
     { icon: Lock, label: { en: "Confidential & Secure", gu: "ગોપનીય અને સુરક્ષિત", hi: "गोपनीय और सुरक्षित" } },
   ] as { icon: LucideIcon; label: L3 }[],
-  cta: { en: "Get Assistance Now", gu: "હમણાં સહાય મેળવો", hi: "अभी सहायता पाएं" } as L3,
+  waMsg: {
+    en: "Hi CASE SUNO, I need help with my problem.",
+    gu: "નમસ્તે CASE SUNO, મને મારી સમસ્યામાં મદદ જોઈએ છે.",
+    hi: "नमस्ते CASE SUNO, मुझे अपनी समस्या में मदद चाहिए।",
+  } as L3,
   howSub: { en: "5 simple steps", gu: "૫ સરળ તબક્કા", hi: "5 सरल चरण" } as L3,
   catPre: { en: "What Brings You to ", gu: "", hi: "" } as L3,
   catPost: { en: "?", gu: " પાસે તમે શેના માટે આવ્યા છો?", hi: " पर आप किस लिए आए हैं?" } as L3,
@@ -261,6 +270,8 @@ export const Hero: React.FC<HeroProps> = ({ onOpenEnquiry }) => {
   const [query, setQuery] = useState("");
 
   const showBubbles = photo === HERO_PHOTO;
+
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(tr(H.waMsg))}`;
 
   useEffect(() => {
     const img = imgRef.current;
@@ -520,16 +531,18 @@ export const Hero: React.FC<HeroProps> = ({ onOpenEnquiry }) => {
 
               {/* CTAs */}
               <div className="cs-rise flex flex-col sm:flex-row gap-3 sm:gap-4 pt-1" style={rise(400)}>
-                <button
-                  type="button"
-                  onClick={() => onOpenEnquiry()}
-                  className="cs-shine cs-press group relative inline-flex min-h-[56px] items-center justify-center gap-3 overflow-hidden rounded-sm px-7 text-[14px] sm:text-[15px] font-medium tracking-wide text-white shadow-[0_8px_0_-4px_#000,0_16px_30px_-14px_rgba(31,30,27,0.6)] cursor-pointer"
-                  style={{ background: INK }}
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t.cta.chatWhatsApp}
+                  className="cs-shine cs-press group relative inline-flex min-h-[56px] items-center justify-center gap-3 overflow-hidden rounded-sm px-7 text-[14px] sm:text-[15px] font-medium tracking-wide text-white shadow-[0_8px_0_-4px_#0B5E2E,0_16px_30px_-14px_rgba(18,140,126,0.6)] cursor-pointer"
+                  style={{ background: WA_GREEN }}
                 >
-                  <MessageCircle className="h-5 w-5 transition-transform duration-300 group-hover:rotate-[-12deg] group-hover:scale-110" />
-                  <span>{tr(H.cta)}</span>
+                  <FaWhatsapp className="h-5 w-5 transition-transform duration-300 group-hover:rotate-[-12deg] group-hover:scale-110" />
+                  <span>{t.cta.chatWhatsApp}</span>
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </button>
+                </a>
 
                 <button
                   type="button"
@@ -627,7 +640,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenEnquiry }) => {
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block text-[15px] font-semibold leading-snug text-[#1E1D1A]">{tr(c.title)}</span>
-                          <span className="mt-1 text-[12.5px] leading-relaxed text-[#6B655B] line-clamp-2">{tr(c.desc)}</span>
+                            <span className="mt-1 text-[12.5px] leading-relaxed text-[#6B655B] line-clamp-2">{tr(c.desc)}</span>
                           </span>
                           <ChevronRight className="h-5 w-5 shrink-0 text-[#BFB6A6] transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#1F5C50]" />
                         </button>
