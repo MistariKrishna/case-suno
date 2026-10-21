@@ -18,9 +18,7 @@ import { ResourcesModal } from "../components/ResourcesModal";
 import { FaqModal } from "../components/FaqModal";
 import { ContactModal } from "../components/ContactModal";
 import { LegalModal } from "../components/LegalModal";
-import { WhatsAppFloatingButton } from "../components/WhatsApp";
-
-type LegalType = "privacy" | "terms" | "disclaimer";
+import type { LegalType } from "../lib/legal";
 
 export default function Home() {
   const [enquiryOpen, setEnquiryOpen] = useState(false);
@@ -33,6 +31,7 @@ export default function Home() {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  // Used only by the Enquiry form (shows the policy without leaving the form)
   const [legalType, setLegalType] = useState<LegalType | null>(null);
 
   /** Always resets the category so an old selection never "sticks". */
@@ -52,7 +51,7 @@ export default function Home() {
       />
 
       <main className="flex-1">
-       <Hero onOpenEnquiry={openEnquiry} onOpenLocationInfo={() => setContactOpen(true)} />
+        <Hero onOpenEnquiry={openEnquiry} onOpenLocationInfo={() => setContactOpen(true)} />
         <ServicesSection onSelectService={setSelectedService} />
         <ProcessSection onKnowMore={() => setFaqOpen(true)} onOpenEnquiry={() => openEnquiry()} />
         <WhyChooseSection />
@@ -65,11 +64,10 @@ export default function Home() {
         onOpenResources={() => setResourcesOpen(true)}
         onOpenFaq={() => setFaqOpen(true)}
         onOpenContact={() => setContactOpen(true)}
-        onOpenLegal={setLegalType}
       />
 
       {/* Floating chat button (opens the topic picker) */}
-     <ChatAssistant onStartEnquiry={openEnquiry} onOpenWhatsApp={() => setWhatsAppOpen(true)} />
+      <ChatAssistant onStartEnquiry={openEnquiry} onOpenWhatsApp={() => setWhatsAppOpen(true)} />
 
       {/* Modals */}
       <EnquiryModal

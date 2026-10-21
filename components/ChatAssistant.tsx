@@ -171,7 +171,7 @@ const INTENT_KEYWORDS: { key: Intent; kw: string[] }[] = [
   { key: "lawyer", kw: ["lawyer", "advocate", "law firm", "attorney", "vakil", "વકીલ", "એડવોકેટ", "वकील", "अधिवक्ता", "लॉ फर्म"] },
   { key: "privacy", kw: ["confidential", "privacy", "private", "safe", "secure", "data", "ગોપનીય", "ખાનગી", "સુરક્ષિત", "गोपनीय", "सुरक्षित", "निजी"] },
   { key: "timing", kw: ["how long", "when will", "reply", "respond", "response", "call back", "contact me", "ક્યારે", "કેટલા સમય", "જવાબ", "कब", "कितने समय", "जवाब"] },
-  { key: "location", kw: ["where", "location", "office", "surat", "online", "city", "visit", "ક્યાં", "સુરત", "ઓફિસ", "कहाँ", "कहां", "सूरत", "ऑफिस"] },
+    { key: "location", kw: ["where", "location", "office", "online", "city", "visit", "address", "ક્યાં", "ઓફિસ", "સરનામું", "कहाँ", "कहां", "ऑफिस", "पता"] },
   { key: "process", kw: ["process", "how does it work", "how it works", "steps", "procedure", "પ્રક્રિયા", "કેવી રીતે કામ", "તબક્કા", "प्रक्रिया", "कैसे काम", "चरण"] },
   { key: "enquiry", kw: ["enquiry", "inquiry", "enquire", "form", "register", "book", "appointment", "પૂછપરછ", "એપોઇન્ટમેન્ટ", "ફોર્મ", "पूछताछ", "अपॉइंटमेंट", "फ़ॉर्म", "फॉर्म"] },
 ];

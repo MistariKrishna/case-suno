@@ -2,16 +2,16 @@
 
 import React from "react";
 import { useLanguage } from "../context/LanguageContext";
+import { LEGAL_DOCS, LEGAL_ORDER } from "../lib/legal";
 
 interface FooterProps {
   onOpenAbout: () => void;
   onOpenResources: () => void;
   onOpenFaq: () => void;
   onOpenContact: () => void;
-  onOpenLegal: (type: "privacy" | "terms" | "disclaimer") => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, onOpenFaq, onOpenContact, onOpenLegal }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, onOpenFaq, onOpenContact }) => {
   const { t, language } = useLanguage();
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -36,6 +36,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, on
     { key: "faq", label: t.nav.faq, action: onOpenFaq },
     { key: "contact", label: t.nav.contact, action: onOpenContact },
   ];
+
+  const legalLabel = (type: (typeof LEGAL_ORDER)[number]) =>
+    type === "privacy" ? t.footer.privacy : type === "terms" ? t.footer.terms : t.footer.disclaimer;
 
   const socialClass =
     "flex h-8 w-8 items-center justify-center rounded-full bg-[#EFECE5] text-[#4A463E] transition-all duration-200 hover:bg-[#1E1D1A] hover:text-white hover:-translate-y-1 hover:shadow-md active:scale-90";
@@ -88,16 +91,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAbout, onOpenResources, on
 
         <div className="pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs text-[#787268]">
           <div className="flex items-center gap-3 flex-wrap">
-            {(["privacy", "terms", "disclaimer"] as const).map((type, i) => (
+            {LEGAL_ORDER.map((type, i) => (
               <React.Fragment key={type}>
                 {i > 0 && <span aria-hidden="true">|</span>}
-                <button
-                  type="button"
-                  onClick={() => onOpenLegal(type)}
+                <a
+                  href={LEGAL_DOCS[type].href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="nav-link-underline hover:text-[#1A1917] transition-colors cursor-pointer"
                 >
-                  {type === "privacy" ? t.footer.privacy : type === "terms" ? t.footer.terms : t.footer.disclaimer}
-                </button>
+                  {legalLabel(type)}
+                </a>
               </React.Fragment>
             ))}
           </div>

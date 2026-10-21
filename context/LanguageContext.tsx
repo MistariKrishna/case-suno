@@ -488,7 +488,7 @@ export const translations: Record<Language, Translations> = {
       privacy: "Privacy Policy",
       terms: "Terms & Conditions",
       disclaimer: "Disclaimer",
-      locationNotice: "Surat, Gujarat, India · Online & Appointment-Based Assistance",
+            locationNotice: "Online & Appointment-Based Assistance",
     },
     auth: {
       getStarted: "Get Started",
@@ -826,7 +826,7 @@ export const translations: Record<Language, Translations> = {
       privacy: "ગોપનીયતા નીતિ",
       terms: "નિયમો અને શરતો",
       disclaimer: "ડિસ્ક્લેમર",
-      locationNotice: "સુરત, ગુજરાત, ભારત · ઓનલાઇન અને એપોઇન્ટમેન્ટ આધારિત સહાય",
+            locationNotice: "ઓનલાઇન અને એપોઇન્ટમેન્ટ આધારિત સહાય",
     },
     auth: {
       getStarted: "શરૂ કરો",
@@ -1164,7 +1164,7 @@ export const translations: Record<Language, Translations> = {
       privacy: "गोपनीयता नीति",
       terms: "नियम और शर्तें",
       disclaimer: "अस्वीकरण (Disclaimer)",
-      locationNotice: "सूरत, गुजरात, भारत · ऑनलाइन और अपॉइंटमेंट आधारित सहायता",
+            locationNotice: "ऑनलाइन और अपॉइंटमेंट आधारित सहायता",
     },
     auth: {
       getStarted: "शुरुआत करें",

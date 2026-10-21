@@ -39,7 +39,7 @@ const notoDevanagari = Noto_Sans_Devanagari({
 });
 
 const description =
-  "CASE SUNO listens, organises and helps you move forward with trusted professionals, where required. Professional consultation and assistance in Surat, Gujarat.";
+  "CASE SUNO listens, organises and helps you move forward with trusted professionals, where required. Online and appointment-based assistance.";
 
 export const metadata: Metadata = {
   title: "CASE SUNO - Know What to Do Next",
