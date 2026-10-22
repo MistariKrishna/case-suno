@@ -65,12 +65,12 @@ export const Footer: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
             <div className="flex items-center gap-3">
-              <a href="https://www.facebook.com/share/1CJHQMZB2D/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className={socialClass}>
+              <a href="https://www.facebook.com/share/1CJHQMZB2D/?mibextid=wwXIfr" rel="noopener noreferrer" aria-label="Facebook" className={socialClass}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
                   <path d="M14 8h3V4h-3c-2.76 0-5 2.24-5 5v3H6v4h3v6h4v-6h3l1-4h-4V9c0-.55.45-1 1-1Z" />
                 </svg>
               </a>
-              <a href="https://www.instagram.com/casesuno.in/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className={socialClass}>
+              <a href="https://www.instagram.com/casesuno.in/" rel="noopener noreferrer" aria-label="Instagram" className={socialClass}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
                   <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="2" />
                   <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
@@ -89,7 +89,6 @@ export const Footer: React.FC = () => {
                 {i > 0 && <span aria-hidden="true">|</span>}
                 <a
                   href={LEGAL_DOCS[type].href}
-                  target="_blank"
                   rel="noopener noreferrer"
                   className="nav-link-underline hover:text-[#1A1917] transition-colors"
                 >
